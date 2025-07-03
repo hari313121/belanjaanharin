@@ -3,12 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DAFTAR BELANJAAN HARINFOOD</title>
+    <title>Daftar Belanja Harinfood</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Anda bisa menghapus semua CSS kalkulator yang sebelumnya ada di sini */
+        /* Jika Anda ingin membersihkan CSS, hapus blok <style> yang berisi .calculator-container, dll. */
+        /* Biarkan kosong atau hapus blok style ini jika tidak ada lagi CSS tambahan yang spesifik HTML */
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1><b>DAFTAR BELANJAAN HARINFOOD</b></h1>
+        <div style="margin-bottom: 20px;">
+            <label for="printHeaderInput" style="display: block; margin-bottom: 5px; font-weight: bold;">Header Cetak:</label>
+            <input type="text" id="printHeaderInput" value="Daftar Belanja Harinfood" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+        </div>
+
+        <h1>Daftar Belanja Harinfood</h1>
 
         <form id="shoppingForm">
             <input type="text" id="itemName" placeholder="Nama Barang" required>
@@ -30,10 +41,11 @@
         </div>
 
         <div class="actions">
-            <button id="printButton">Cetak Daftar</button>
-            <button id="whatsappButton">Kirim via WhatsApp</button>
+            <button id="printButton">Cetak Daftar (Bluetooth)</button>
+            <button id="printPdfButton">Cetak PDF</button> <button id="whatsappButton">Kirim via WhatsApp</button>
         </div>
-    </div>
+
+        </div>
 
     <script src="script.js"></script>
 </body>
