@@ -5,8 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemUnitSelect = document.getElementById('itemUnit');
     const shoppingList = document.getElementById('shoppingList');
     const printButton = document.getElementById('printButton');
+    const printPdfButton = document.getElementById('printPdfButton'); // **Tambahan ini**
     const whatsappButton = document.getElementById('whatsappButton');
     const clearListButton = document.getElementById('clearListButton');
+    const printHeaderInput = document.getElementById('printHeaderInput');
 
     let items = [];
 
@@ -65,82 +67,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Fungsionalitas Printer Bluetooth ---
-    // Penting: Interaksi dengan printer Bluetooth langsung dari browser memerlukan dukungan Web Bluetooth API.
-    // Web Bluetooth API hanya berfungsi di browser yang mendukungnya (misalnya Chrome di Android, Chrome OS, macOS, Linux, Windows 10/11)
-    // dan membutuhkan koneksi HTTPS.
-
+    // --- Fungsionalitas Printer Bluetooth (Tidak Berubah) ---
     printButton.addEventListener('click', async () => {
         if (items.length === 0) {
             alert('Daftar belanja kosong, tidak ada yang bisa dicetak.');
             return;
         }
 
+        const customHeader = printHeaderInput.value.trim();
+        const headerToPrint = customHeader.length > 0 ? customHeader : "Daftar Belanja Harinfood";
+
         if ('bluetooth' in navigator) {
             try {
-                // Mencari perangkat Bluetooth dengan filter untuk printer thermal (Service UUID umum)
-                // Anda mungkin perlu menyesuaikan serviceId atau name berdasarkan printer EPPOS Anda.
                 const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }], // Contoh Service UUID umum untuk printer
-                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb'] // Wajib untuk mengakses GATT services
+                    filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
                 });
 
                 const server = await device.gatt.connect();
-                const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb'); // Sesuaikan Service UUID
-                const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb'); // Sesuaikan Characteristic UUID (untuk menulis data)
-
-                // ESC/POS Commands untuk formatting:
-                // ESC @ = Initialize printer
-                // ESC E 1 = Bold ON (untuk membuat teks tebal)
-                // ESC E 0 = Bold OFF
-                // GS ! n = Set character size (untuk memperbesar/memperkecil font)
-                //      n = (height_multiplier << 4) | width_multiplier
-                //      Misal: 0x00 (1x width, 1x height => default), 0x01 (2x width), 0x10 (2x height)
-                // GS - n = Underline (n=1 untuk single, n=2 untuk double)
-                // GS . = Cancel underline
-                // ESC - n = Underline (n=1 untuk single, n=2 untuk double)
-                // ESC 4 = Italic ON
-                // ESC 5 = Italic OFF
-                // 0x0A = Line Feed (new line)
-                // 0x1D 0x56 0x41 0x00 = Full cut (pemotongan penuh)
-                // 0x1D 0x56 0x42 0x00 = Partial cut (pemotongan sebagian)
+                const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+                const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
                 let printData = new Uint8Array([]);
+                printData = new Uint8Array([...printData, 0x1B, 0x40]);
 
-                // 1. Inisialisasi Printer
-                printData = new Uint8Array([...printData, 0x1B, 0x40]); // ESC @ - Initialize printer
-
-                // 2. Header "Daftar Belanja Harinfood"
-                // Aktifkan mode bold dan sedikit perbesar font untuk header
                 printData = new Uint8Array([...printData,
-                    0x1B, 0x45, 0x01,  // ESC E 1 - Aktifkan mode Bold
-                    0x1D, 0x21, 0x01   // GS ! 0x01 - Set character size to 1x width, 2x height (ini akan memperbesar tinggi saja)
-                                       // Atau coba 0x10 untuk 2x tinggi, 1x lebar
-                                       // Atau 0x00 untuk ukuran default (1x1)
+                    0x1B, 0x45, 0x01,
+                    0x1D, 0x21, 0x01
                 ]);
-                const header = "Daftar Belanja Harinfood\n";
-                printData = new Uint8Array([...printData, ...new TextEncoder().encode(header)]);
+                const headerPrinted = `${headerToPrint}\n`;
+                printData = new Uint8Array([...printData, ...new TextEncoder().encode(headerPrinted)]);
 
-                // Kembali ke ukuran font normal dan bold untuk item daftar
                 printData = new Uint8Array([...printData,
-                    0x1D, 0x21, 0x00, // GS ! 0x00 - Set character size back to default (1x width, 1x height)
-                    0x0A, 0x0A        // Dua baris kosong setelah header
+                    0x1D, 0x21, 0x00,
+                    0x0A, 0x0A
                 ]);
 
-                // 3. Item Belanja dengan Garis
                 items.forEach((item, index) => {
                     const itemLine = `${item.name} (${item.quantity} ${item.unit})\n`;
                     printData = new Uint8Array([...printData, ...new TextEncoder().encode(itemLine)]);
-
-                    // Tambahkan garis pemisah setelah setiap item
-                    const lineSeparator = "--------------------------------\n"; // Sesuaikan panjang garis dengan lebar kertas
+                    const lineSeparator = "--------------------------------\n";
                     printData = new Uint8Array([...printData, ...new TextEncoder().encode(lineSeparator)]);
                 });
 
-                // 4. Footer
                 const footer = "\nTerima kasih!\n\n\n";
                 printData = new Uint8Array([...printData, ...new TextEncoder().encode(footer)]);
-                printData = new Uint8Array([...printData, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]); // Beberapa line feed tambahan
+                printData = new Uint8Array([...printData, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
 
                 await characteristic.writeValue(printData);
                 alert('Daftar belanja berhasil dikirim ke printer!');
@@ -154,20 +126,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Fungsionalitas WhatsApp ---
+    // --- Fungsionalitas Cetak PDF (BARU) ---
+    printPdfButton.addEventListener('click', () => {
+        if (items.length === 0) {
+            alert('Daftar belanja kosong, tidak ada yang bisa dicetak ke PDF.');
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+
+        // Dimensi kertas thermal 58mm x 200mm
+        // 1 mm = 1 / 25.4 * 72 points (standard PDF unit) ≈ 2.8346 points
+        const widthMm = 58;
+        const heightMm = 200; // Asumsi panjang maksimal, PDF akan memanjang jika konten lebih banyak
+
+        // Konversi mm ke points (pt)
+        const widthPt = widthMm * 2.8346;
+        const heightPt = heightMm * 2.8346;
+
+        // Membuat instance jsPDF dengan ukuran kustom
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'pt', // Menggunakan points sebagai unit
+            format: [widthPt, heightPt] // [width, height] in points
+        });
+
+        // Ambil nilai header dari input teks
+        const customHeader = printHeaderInput.value.trim();
+        const headerToPrint = customHeader.length > 0 ? customHeader : "Daftar Belanja Harinfood";
+
+        let yPos = 20; // Posisi Y awal
+        const marginX = 10; // Margin horizontal
+
+        // Set font untuk Header (bold dan sedikit lebih besar)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14); // Ukuran font untuk header (bisa disesuaikan)
+        const headerTextWidth = doc.getTextWidth(headerToPrint);
+        const headerX = (widthPt - headerTextWidth) / 2; // Pusatkan header
+        doc.text(headerToPrint, headerX, yPos);
+        yPos += 20; // Jarak setelah header
+
+        // Set font untuk Item Daftar (normal dan tebal)
+        doc.setFont('helvetica', 'bold'); // Tetap bold
+        doc.setFontSize(10); // Ukuran font untuk item (bisa disesuaikan)
+        yPos += 10; // Jarak sebelum item pertama
+
+        items.forEach((item, index) => {
+            const itemLine = `${item.name} (${item.quantity} ${item.unit})`;
+            doc.text(itemLine, marginX, yPos);
+            yPos += 12; // Jarak antar baris item
+
+            // Tambahkan garis pemisah
+            doc.line(marginX, yPos - 3, widthPt - marginX, yPos - 3); // Garis horizontal
+            yPos += 5; // Jarak setelah garis
+        });
+
+        // Tambahkan Footer
+        doc.setFont('helvetica', 'normal'); // Kembali ke font normal untuk footer
+        doc.setFontSize(9);
+        yPos += 15;
+        const footerText = "Terima kasih!";
+        const footerTextWidth = doc.getTextWidth(footerText);
+        const footerX = (widthPt - footerTextWidth) / 2;
+        doc.text(footerText, footerX, yPos);
+
+        // Simpan PDF
+        doc.save('daftar_belanja_harinfood.pdf');
+        alert('PDF daftar belanja berhasil dibuat dan diunduh!');
+    });
+
+    // --- Fungsionalitas WhatsApp (Tidak Berubah) ---
     whatsappButton.addEventListener('click', () => {
         if (items.length === 0) {
             alert('Daftar belanja kosong, tidak ada yang bisa dikirim.');
             return;
         }
 
-        let message = "Daftar Belanja Harinfood:\n\n";
+        const customHeader = printHeaderInput.value.trim();
+        const headerForWhatsapp = customHeader.length > 0 ? customHeader : "Daftar Belanja Harinfood";
+
+        let message = `${headerForWhatsapp}:\n\n`;
         items.forEach(item => {
             message += `${item.name} (${item.quantity} ${item.unit})\n`;
         });
         message += "\nTerima kasih!";
 
-        // Menggunakan URL encode untuk pesan agar aman saat dikirim
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     });
