@@ -152,27 +152,38 @@ button:hover {
         font-size: 14px; /* Ukuran font dasar yang lebih normal */
         line-height: 1.1; /* Jarak antar baris diperkecil */
         font-weight: normal; /* Reset font-weight body */
+        overflow: hidden; /* Mencegah scrollbar muncul di cetakan */
     }
 
+    /* Targetkan hanya .container yang ingin dicetak */
     .container {
         box-shadow: none;
         padding: 4mm; /* Padding untuk margin kertas minimalis */
         max-width: 58mm; /* Lebar kertas thermal 58mm */
-        width: auto; /* Biarkan lebar menyesuaikan konten */
-        margin: 0 auto; /* Tengah di halaman cetak */
+        width: 100%; /* Pastikan mengisi lebar yang tersedia dalam konteks cetak */
+        margin: 0; /* Hapus margin otomatis, akan diatur oleh print layout */
+        position: absolute; /* Posisikan secara absolut untuk mengisolasi konten cetak */
+        top: 0;
+        left: 0;
+        right: 0;
     }
 
     /* Sembunyikan elemen yang tidak ingin dicetak */
     form,
     .action-buttons,
-    .remove-item-btn,
-    h1 {
+    h1 { /* Hapus h1 dari sini karena sudah disembunyikan di container print-only */
         display: none !important;
+    }
+
+    /* Pastikan hanya elemen yang relevan yang ditampilkan */
+    .print-header,
+    #shopping-list,
+    .print-footer {
+        display: block !important; /* Pastikan ini ditampilkan */
     }
 
     /* Header cetak */
     .print-header {
-        display: block !important; /* Tampilkan kembali header */
         text-align: center;
         margin-bottom: 4mm; /* Jarak bawah header diperkecil */
         line-height: 1.1;
@@ -201,9 +212,9 @@ button:hover {
     .list-item {
         display: block;
         padding: 0;
-        border-bottom: none; /* Hapus border di sini karena akan dipindahkan ke .item-line-print */
+        border-bottom: none;
         line-height: 1.1;
-        margin-bottom: 0; /* Hapus margin-bottom di sini untuk kontrol lebih baik di .item-line-print */
+        margin-bottom: 0;
     }
 
     .list-item:last-child {
