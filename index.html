@@ -7,20 +7,60 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        /* Anda bisa menghapus semua CSS kalkulator yang sebelumnya ada di sini */
-        /* Jika Anda ingin membersihkan CSS, hapus blok <style> yang berisi .calculator-container, dll. */
-        /* Biarkan kosong atau hapus blok style ini jika tidak ada lagi CSS tambahan yang spesifik HTML */
+        /* CSS Tambahan untuk Fitur Header Tersembunyi */
+        .header-edit-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Pusatkan header dan ikon */
+            gap: 10px; /* Jarak antara teks dan ikon */
+            margin-bottom: 20px;
+        }
+
+        .header-edit-container h1 {
+            margin: 0; /* Hapus margin default h1 */
+            cursor: pointer; /* Menandakan bisa diklik */
+            color: #333;
+        }
+
+        .header-edit-icon {
+            font-size: 1.2em;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+
+        .header-edit-icon:hover {
+            color: #007bff; /* Warna biru saat di-hover */
+        }
+
+        #printHeaderInput {
+            display: none; /* Sembunyikan input secara default */
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+            margin-top: 10px; /* Jarak dari judul */
+        }
+
+        /* CSS Tambahan untuk Footer Copyright */
+        .app-footer {
+            text-align: center;
+            margin-top: 40px; /* Jarak dari konten di atasnya */
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="margin-bottom: 20px;">
-            <label for="printHeaderInput" style="display: block; margin-bottom: 5px; font-weight: bold;">Header Cetak:</label>
-            <input type="text" id="printHeaderInput" value="Daftar Belanja Harinfood" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
-        </div>
-
-        <h1>Daftar Belanja Harinfood</h1>
-
+        <div class="header-edit-container">
+            <h1 id="mainAppHeader">Daftar Belanja Harinfood</h1>
+            <span class="header-edit-icon" id="editHeaderIcon">&#9998;</span> </div>
+        <input type="text" id="printHeaderInput" value="Daftar Belanja Harinfood">
         <form id="shoppingForm">
             <input type="text" id="itemName" placeholder="Nama Barang" required>
             <input type="number" id="itemQuantity" placeholder="Jumlah" min="1" required>
@@ -42,11 +82,58 @@
 
         <div class="actions">
             <button id="printButton">Cetak Daftar (Bluetooth)</button>
-            <button id="printPdfButton">Cetak PDF</button> <button id="whatsappButton">Kirim via WhatsApp</button>
+            <button id="printPdfButton">Cetak PDF</button>
+            <button id="whatsappButton">Kirim via WhatsApp</button>
         </div>
 
+        <footer class="app-footer">
+            <p>&copy; 2025 Harinfood. Hak Cipta Dilindungi.</p>
+        </footer>
         </div>
 
     <script src="script.js"></script>
+    <script>
+        // JavaScript untuk mengontrol visibilitas input header
+        const mainAppHeader = document.getElementById('mainAppHeader');
+        const editHeaderIcon = document.getElementById('editHeaderIcon');
+        const printHeaderInput = document.getElementById('printHeaderInput');
+
+        function toggleHeaderInput() {
+            if (printHeaderInput.style.display === 'none' || printHeaderInput.style.display === '') {
+                printHeaderInput.style.display = 'block'; // Tampilkan input
+                printHeaderInput.focus(); // Fokus ke input agar bisa langsung mengetik
+            } else {
+                printHeaderInput.style.display = 'none'; // Sembunyikan input
+                // Perbarui teks h1 dengan nilai input saat disembunyikan (opsional)
+                // mainAppHeader.textContent = printHeaderInput.value.trim() || "Daftar Belanja Harinfood";
+            }
+        }
+
+        mainAppHeader.addEventListener('click', toggleHeaderInput);
+        editHeaderIcon.addEventListener('click', toggleHeaderInput);
+
+        // Opsional: Sembunyikan input jika klik di luar area input/tombol edit
+        document.addEventListener('click', (event) => {
+            if (
+                printHeaderInput.style.display === 'block' &&
+                !mainAppHeader.contains(event.target) &&
+                !editHeaderIcon.contains(event.target) &&
+                !printHeaderInput.contains(event.target)
+            ) {
+                printHeaderInput.style.display = 'none';
+                // mainAppHeader.textContent = printHeaderInput.value.trim() || "Daftar Belanja Harinfood";
+            }
+        });
+
+        // Update mainAppHeader text based on input when input loses focus
+        printHeaderInput.addEventListener('blur', () => {
+            mainAppHeader.textContent = printHeaderInput.value.trim() || "Daftar Belanja Harinfood";
+            // printHeaderInput.style.display = 'none'; // Bisa juga disembunyikan otomatis saat blur
+        });
+
+        // Initialize header text on load
+        mainAppHeader.textContent = printHeaderInput.value.trim() || "Daftar Belanja Harinfood";
+
+    </script>
 </body>
 </html>
