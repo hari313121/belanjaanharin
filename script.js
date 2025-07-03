@@ -1,220 +1,149 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const shoppingForm = document.getElementById('shoppingForm');
-    const itemNameInput = document.getElementById('itemName');
-    const itemQuantityInput = document.getElementById('itemQuantity');
-    const itemUnitSelect = document.getElementById('itemUnit');
-    const shoppingList = document.getElementById('shoppingList');
-    const printButton = document.getElementById('printButton');
-    const printPdfButton = document.getElementById('printPdfButton'); // **Tambahan ini**
-    const whatsappButton = document.getElementById('whatsappButton');
-    const clearListButton = document.getElementById('clearListButton');
-    const printHeaderInput = document.getElementById('printHeaderInput');
+const shoppingForm = document.getElementById('shopping-item-form');
+const itemNameInput = document.getElementById('item-name');
+const itemQuantityInput = document.getElementById('item-quantity');
+const itemUnitInput = document.getElementById('item-unit');
+const shoppingListDiv = document.getElementById('shopping-list');
+const printButton = document.getElementById('print-button');
+const whatsappButton = document.getElementById('whatsapp-button');
+const printDateSpan = document.getElementById('print-date');
 
-    let items = [];
+let shoppingItems = [];
 
-    // Fungsi untuk menampilkan item di daftar pada halaman web
-    function renderShoppingList() {
-        shoppingList.innerHTML = ''; // Kosongkan daftar sebelum merender ulang
-        if (items.length === 0) {
-            const emptyMessage = document.createElement('li');
-            emptyMessage.textContent = 'Daftar belanja masih kosong.';
-            emptyMessage.style.textAlign = 'center';
-            emptyMessage.style.fontStyle = 'italic';
-            shoppingList.appendChild(emptyMessage);
-        } else {
-            items.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <span>${item.name} (${item.quantity} ${item.unit})</span>
-                    <button class="removeItem" data-index="${index}">X</button>
-                `;
-                shoppingList.appendChild(listItem);
-            });
-        }
+// Fungsi untuk merender ulang daftar belanja
+function renderShoppingList() {
+    shoppingListDiv.innerHTML = ''; // Kosongkan daftar sebelumnya
+    if (shoppingItems.length === 0) {
+        shoppingListDiv.innerHTML = '<p style="text-align: center; color: #777;">Daftar belanja kosong.</p>';
+        return;
     }
 
-    // Menambahkan item ke daftar
-    shoppingForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const itemName = itemNameInput.value.trim();
-        const itemQuantity = itemQuantityInput.value;
-        const itemUnit = itemUnitSelect.value;
+    shoppingItems.forEach((item, index) => {
+        const listItem = document.createElement('div');
+        listItem.className = 'list-item';
+        
+        listItem.innerHTML = `
+            <div class="item-line-print">
+                <span>${item.name.toUpperCase()}</span> 
+                <span>${item.quantity} ${item.unit}</span>
+            </div>
+            <button class="remove-item-btn" data-index="${index}">X</button>
+        `;
 
-        if (itemName && itemQuantity) {
-            items.push({ name: itemName, quantity: itemQuantity, unit: itemUnit });
-            renderShoppingList();
-            itemNameInput.value = '';
-            itemQuantityInput.value = '';
-            itemUnitSelect.value = 'Pcs'; // Reset ke Pcs
-            itemNameInput.focus();
-        }
+        shoppingListDiv.appendChild(listItem);
     });
 
-    // Menghapus item dari daftar
-    shoppingList.addEventListener('click', (e) => {
-        if (e.target.classList.contains('removeItem')) {
-            const indexToRemove = parseInt(e.target.dataset.index);
-            items.splice(indexToRemove, 1);
-            renderShoppingList();
-        }
-    });
-
-    // Membersihkan seluruh daftar
-    clearListButton.addEventListener('click', () => {
-        if (confirm('Apakah Anda yakin ingin menghapus semua item dari daftar?')) {
-            items = [];
-            renderShoppingList();
-        }
-    });
-
-    // --- Fungsionalitas Printer Bluetooth (Tidak Berubah) ---
-    printButton.addEventListener('click', async () => {
-        if (items.length === 0) {
-            alert('Daftar belanja kosong, tidak ada yang bisa dicetak.');
-            return;
-        }
-
-        const customHeader = printHeaderInput.value.trim();
-        const headerToPrint = customHeader.length > 0 ? customHeader : "Daftar Belanja Harinfood";
-
-        if ('bluetooth' in navigator) {
-            try {
-                const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
-                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-                });
-
-                const server = await device.gatt.connect();
-                const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-                const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-
-                let printData = new Uint8Array([]);
-                printData = new Uint8Array([...printData, 0x1B, 0x40]);
-
-                printData = new Uint8Array([...printData,
-                    0x1B, 0x45, 0x01,
-                    0x1D, 0x21, 0x01
-                ]);
-                const headerPrinted = `${headerToPrint}\n`;
-                printData = new Uint8Array([...printData, ...new TextEncoder().encode(headerPrinted)]);
-
-                printData = new Uint8Array([...printData,
-                    0x1D, 0x21, 0x00,
-                    0x0A, 0x0A
-                ]);
-
-                items.forEach((item, index) => {
-                    const itemLine = `${item.name} (${item.quantity} ${item.unit})\n`;
-                    printData = new Uint8Array([...printData, ...new TextEncoder().encode(itemLine)]);
-                    const lineSeparator = "--------------------------------\n";
-                    printData = new Uint8Array([...printData, ...new TextEncoder().encode(lineSeparator)]);
-                });
-
-                const footer = "\nTerima kasih!\n\n\n";
-                printData = new Uint8Array([...printData, ...new TextEncoder().encode(footer)]);
-                printData = new Uint8Array([...printData, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A]);
-
-                await characteristic.writeValue(printData);
-                alert('Daftar belanja berhasil dikirim ke printer!');
-
-            } catch (error) {
-                console.error('Error saat mencetak:', error);
-                alert('Gagal terhubung atau mencetak. Pastikan printer menyala dan dalam mode pairing, serta browser mendukung Web Bluetooth API (gunakan HTTPS). ' + error.message);
-            }
-        } else {
-            alert('Browser Anda tidak mendukung Web Bluetooth API. Silakan gunakan Chrome di perangkat yang mendukung.');
-        }
-    });
-
-    // --- Fungsionalitas Cetak PDF (BARU) ---
-    printPdfButton.addEventListener('click', () => {
-        if (items.length === 0) {
-            alert('Daftar belanja kosong, tidak ada yang bisa dicetak ke PDF.');
-            return;
-        }
-
-        const { jsPDF } = window.jspdf;
-
-        // Dimensi kertas thermal 58mm x 200mm
-        // 1 mm = 1 / 25.4 * 72 points (standard PDF unit) ≈ 2.8346 points
-        const widthMm = 58;
-        const heightMm = 200; // Asumsi panjang maksimal, PDF akan memanjang jika konten lebih banyak
-
-        // Konversi mm ke points (pt)
-        const widthPt = widthMm * 2.8346;
-        const heightPt = heightMm * 2.8346;
-
-        // Membuat instance jsPDF dengan ukuran kustom
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'pt', // Menggunakan points sebagai unit
-            format: [widthPt, heightPt] // [width, height] in points
+    // Tambahkan event listener untuk tombol hapus setelah item dirender
+    document.querySelectorAll('.remove-item-btn').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const indexToRemove = parseInt(event.target.dataset.index);
+            removeItem(indexToRemove);
         });
-
-        // Ambil nilai header dari input teks
-        const customHeader = printHeaderInput.value.trim();
-        const headerToPrint = customHeader.length > 0 ? customHeader : "Daftar Belanja Harinfood";
-
-        let yPos = 20; // Posisi Y awal
-        const marginX = 10; // Margin horizontal
-
-        // Set font untuk Header (bold dan sedikit lebih besar)
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(14); // Ukuran font untuk header (bisa disesuaikan)
-        const headerTextWidth = doc.getTextWidth(headerToPrint);
-        const headerX = (widthPt - headerTextWidth) / 2; // Pusatkan header
-        doc.text(headerToPrint, headerX, yPos);
-        yPos += 20; // Jarak setelah header
-
-        // Set font untuk Item Daftar (normal dan tebal)
-        doc.setFont('helvetica', 'bold'); // Tetap bold
-        doc.setFontSize(10); // Ukuran font untuk item (bisa disesuaikan)
-        yPos += 10; // Jarak sebelum item pertama
-
-        items.forEach((item, index) => {
-            const itemLine = `${item.name} (${item.quantity} ${item.unit})`;
-            doc.text(itemLine, marginX, yPos);
-            yPos += 12; // Jarak antar baris item
-
-            // Tambahkan garis pemisah
-            doc.line(marginX, yPos - 3, widthPt - marginX, yPos - 3); // Garis horizontal
-            yPos += 5; // Jarak setelah garis
-        });
-
-        // Tambahkan Footer
-        doc.setFont('helvetica', 'normal'); // Kembali ke font normal untuk footer
-        doc.setFontSize(9);
-        yPos += 15;
-        const footerText = "Terima kasih!";
-        const footerTextWidth = doc.getTextWidth(footerText);
-        const footerX = (widthPt - footerTextWidth) / 2;
-        doc.text(footerText, footerX, yPos);
-
-        // Simpan PDF
-        doc.save('daftar_belanja_harinfood.pdf');
-        alert('PDF daftar belanja berhasil dibuat dan diunduh!');
     });
+}
 
-    // --- Fungsionalitas WhatsApp (Tidak Berubah) ---
-    whatsappButton.addEventListener('click', () => {
-        if (items.length === 0) {
-            alert('Daftar belanja kosong, tidak ada yang bisa dikirim.');
-            return;
-        }
+// Fungsi untuk menambahkan item
+shoppingForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // Mencegah reload halaman
+    const newItem = {
+        name: itemNameInput.value.trim(),
+        quantity: parseInt(itemQuantityInput.value),
+        unit: itemUnitInput.value
+    };
 
-        const customHeader = printHeaderInput.value.trim();
-        const headerForWhatsapp = customHeader.length > 0 ? customHeader : "Daftar Belanja Harinfood";
-
-        let message = `${headerForWhatsapp}:\n\n`;
-        items.forEach(item => {
-            message += `${item.name} (${item.quantity} ${item.unit})\n`;
-        });
-        message += "\nTerima kasih!";
-
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, '_blank');
-    });
-
-    // Inisialisasi tampilan daftar saat halaman dimuat
-    renderShoppingList();
+    if (newItem.name && newItem.quantity > 0) {
+        shoppingItems.push(newItem);
+        renderShoppingList(); // Perbarui tampilan
+        // Reset form
+        itemNameInput.value = '';
+        itemQuantityInput.value = '1';
+        itemUnitInput.value = 'Pcs';
+        itemNameInput.focus();
+    }
 });
+
+// Fungsi untuk mencetak
+printButton.addEventListener('click', () => {
+    if (shoppingItems.length === 0) {
+        alert('Daftar belanja masih kosong!');
+        return;
+    }
+
+    // Set tanggal cetak
+    const now = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    printDateSpan.textContent = now.toLocaleDateString('id-ID', options);
+
+    // Panggil fungsi cetak bawaan browser
+    window.print();
+});
+
+// Fungsi untuk mengirim via WhatsApp
+whatsappButton.addEventListener('click', () => {
+    if (shoppingItems.length === 0) {
+        alert('Daftar belanja masih kosong!');
+        return;
+    }
+
+    // --- REKONSTRUKSI PESAN WHATSAPP AGAR MIRIP CETAKAN ---
+    let message = "";
+
+    // 1. Header (mirip dengan print-header)
+    message += "*HARINFOOD*\n"; // Menggunakan Markdown untuk tebal
+    message += "Daftar Belanja\n";
+    
+    // Ambil tanggal yang sama dengan cetakan
+    const now = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const printDate = now.toLocaleDateString('id-ID', options);
+    message += `Tanggal: ${printDate}\n`;
+    message += "-----------------------------------\n"; // Garis pemisah simulasi
+
+    // 2. List Belanjaan
+    shoppingItems.forEach((item) => {
+        // Format mirip dengan item-line-print, menggunakan uppercase dan spasi
+        // Menggunakan '*' untuk membuat baris tebal di WhatsApp jika memungkinkan
+        message += `*${item.name.toUpperCase().padEnd(20)} ${item.quantity} ${item.unit}*\n`;
+        message += "-----------------------------------\n"; // Garis di bawah setiap item
+    });
+    // Hapus garis terakhir agar tidak ada garis ganda sebelum footer
+    if (shoppingItems.length > 0) {
+        message = message.substring(0, message.lastIndexOf("-----------------------------------\n"));
+    }
+
+
+    // 3. Footer
+    message += "-----------------------------------\n"; // Garis pemisah simulasi
+    message += "Terima Kasih!\n";
+    message += "Dibuat oleh Aplikasi Harinfood\n";
+    // --- AKHIR REKONSTRUKSI ---
+
+    // --- PERUBAHAN DI SINI: NOMOR WHATSAPP LANGSUNG DIISI ---
+    // Nomor WhatsApp tujuan yang sudah ditentukan
+    const rawWhatsappNumber = "081235368643";
+    let targetWhatsappNumber = rawWhatsappNumber.replace(/\D/g, ''); // Hapus semua non-digit
+
+    // Konversi ke format internasional jika belum
+    if (targetWhatsappNumber.startsWith('0')) {
+        targetWhatsappNumber = '62' + targetWhatsappNumber.substring(1);
+    } else if (!targetWhatsappNumber.startsWith('62')) {
+        // Asumsi jika tidak dimulai dengan 0 atau 62, tambahkan 62 jika panjangnya memungkinkan
+        if (targetWhatsappNumber.length > 5) { // Minimal 5 digit untuk asumsi nomor valid
+            targetWhatsappNumber = '62' + targetWhatsappNumber;
+        }
+    }
+    // --- AKHIR PERUBAHAN ---
+
+    // Validasi sederhana, meskipun nomor sudah hardcode, jaga-jaga jika ada kesalahan format
+    if (!targetWhatsappNumber || targetWhatsappNumber.length < 9) { // Nomor WhatsApp minimal sekitar 9 digit untuk Indonesia
+        alert("Nomor WhatsApp tidak valid. Pengiriman dibatalkan.");
+        return;
+    }
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${targetWhatsappNumber}?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, '_blank');
+});
+
+// Inisialisasi tampilan daftar saat halaman pertama kali dimuat
+renderShoppingList();
