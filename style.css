@@ -13,8 +13,7 @@ body {
     background-color: #fff;
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba
-(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 500px; /* Batasi lebar untuk tampilan desktop */
     box-sizing: border-box;
@@ -172,7 +171,8 @@ button:hover {
     /* Sembunyikan elemen yang tidak ingin dicetak */
     form,
     .action-buttons,
-    h1 {
+    h1,
+    .remove-item-btn { /* TAMBAHAN INI UNTUK MENYEMBUNYIKAN TOMBOL X */
         display: none !important;
     }
 
