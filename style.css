@@ -13,7 +13,8 @@ body {
     background-color: #fff;
     padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba
+(0, 0, 0, 0.1);
     width: 100%;
     max-width: 500px; /* Batasi lebar untuk tampilan desktop */
     box-sizing: border-box;
@@ -171,7 +172,7 @@ button:hover {
     /* Sembunyikan elemen yang tidak ingin dicetak */
     form,
     .action-buttons,
-    h1 { /* Hapus h1 dari sini karena sudah disembunyikan di container print-only */
+    h1 {
         display: none !important;
     }
 
@@ -229,9 +230,9 @@ button:hover {
         display: flex;
         justify-content: space-between;
         width: 100%;
-        padding: 0.5mm 0; /* Padding vertikal sangat kecil untuk merapatkan baris */
+        padding: 0.2mm 0; /* Mengurangi padding vertikal untuk merapatkan baris lebih jauh */
         border-bottom: 1px dashed black; /* GARIS BAWAH UNTUK SETIAP BARIS LIST BELANJA */
-        margin-bottom: 1.5mm; /* Jarak antar item dengan garis bawah */
+        margin-bottom: 0.5mm; /* Mengurangi jarak antar item dengan garis bawah */
     }
 
     .item-line-print:last-of-type {
