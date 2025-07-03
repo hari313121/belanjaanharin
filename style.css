@@ -1,336 +1,191 @@
-/* --- Google Font Import --- */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@400;600;700&display=swap');
-
-/* --- General Styles (untuk tampilan di layar) --- */
+/* Styling dasar untuk tampilan di layar */
 body {
-    font-family: 'Montserrat', sans-serif; /* Menggunakan Montserrat sebagai font utama, lebih modern */
+    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
-    background-color: #f0f2f5; /* Warna latar belakang yang lebih terang dan modern */
+    padding: 20px;
+    background-color: #f4f4f4;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
-    color: #333;
-    line-height: 1.6; /* Jarak antar baris yang lebih nyaman dibaca */
 }
 
 .container {
-    background-color: #ffffff;
-    padding: 35px; /* Padding yang lebih lapang */
-    border-radius: 15px; /* Sudut membulat yang lebih menonjol */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Bayangan lebih halus dan tersebar */
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px; /* Lebar maksimal sedikit lebih besar */
+    max-width: 500px;
     box-sizing: border-box;
-    margin: 50px auto; /* Margin atas/bawah yang lebih besar */
 }
 
 h1 {
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 35px; /* Jarak bawah judul lebih besar */
-    font-weight: 700;
-    font-size: 2.5em; /* Ukuran judul lebih besar */
-    letter-spacing: -0.02em; /* Sedikit rapat untuk kesan modern */
+    color: #333;
+    margin-bottom: 25px;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Jarak antar elemen form lebih besar */
-    margin-bottom: 40px;
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
 label {
-    font-weight: 600; /* Label lebih tebal dari sebelumnya */
+    font-weight: bold;
     color: #555;
-    font-size: 1em; /* Ukuran label sedikit lebih besar */
 }
 
 input[type="text"],
 input[type="number"],
 select {
-    width: 100%;
-    padding: 14px 18px; /* Padding lebih besar untuk field input */
-    border: 1px solid #dcdfe6; /* Border lebih lembut dan elegan */
-    border-radius: 10px; /* Sudut membulat yang lebih terasa */
-    font-size: 1.05em; /* Ukuran font input sedikit lebih besar */
-    box-sizing: border-box;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-select:focus {
-    border-color: #537aff; /* Warna border saat fokus, biru yang cerah */
-    box-shadow: 0 0 0 3px rgba(83, 122, 255, 0.2); /* Efek bayangan saat fokus */
-    outline: none;
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
 }
 
 button {
-    background-color: #537aff; /* Warna biru yang lebih modern dan elegan */
+    background-color: #007bff;
     color: white;
-    padding: 16px 30px; /* Padding lebih besar */
+    padding: 12px 20px;
     border: none;
-    border-radius: 10px; /* Sudut membulat */
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 1.15em; /* Ukuran font tombol lebih besar */
-    font-weight: 700;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 5px 15px rgba(83, 122, 255, 0.25); /* Bayangan tombol yang lebih menonjol */
+    font-size: 1em;
 }
 
 button:hover {
-    background-color: #4068e0; /* Warna biru lebih gelap saat hover */
-    transform: translateY(-3px); /* Efek sedikit terangkat saat hover */
-    box-shadow: 0 8px 20px rgba(83, 122, 255, 0.35);
+    background-color: #0056b3;
 }
 
 #shopping-list {
-    margin-top: 30px; /* Jarak atas lebih besar */
-    border-top: 2px solid #e0e0e0; /* Garis pemisah yang bersih dan solid */
-    padding-top: 30px; /* Padding atas yang lebih lapang */
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #ccc;
 }
 
 .list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 0; /* Padding vertikal yang lebih besar */
-    border-bottom: 1px dashed #e9ecef; /* Garis putus-putus yang sangat halus */
-    font-size: 1.05em; /* Ukuran font item sedikit lebih besar */
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1em;
 }
 
 .list-item:last-child {
     border-bottom: none;
 }
 
-.item-details {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    padding-right: 20px; /* Ruang antara teks dan tombol hapus */
-}
-
-.item-details .name {
-    font-weight: 700;
-    color: #333;
-    font-size: 1.1em;
-    margin-bottom: 5px; /* Jarak antar nama dan qty/unit lebih besar */
-}
-
-.item-details .qty-unit {
-    font-size: 0.9em;
-    color: #777;
-}
-
 .remove-item-btn {
-    background-color: #ff6b6b; /* Warna merah yang lebih cerah dan menarik */
+    background-color: #dc3545;
     color: white;
     border: none;
-    padding: 8px 15px; /* Padding tombol hapus lebih besar */
-    border-radius: 6px;
+    padding: 5px 10px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.remove-item-btn:hover {
-    background-color: #e63946;
-    transform: translateY(-2px);
+    font-size: 0.8em;
 }
 
 .action-buttons {
-    margin-top: 40px; /* Jarak yang lebih lapang */
+    margin-top: 30px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 15px;
 }
 
 .action-buttons button {
     width: 100%;
 }
 
-
-/* --- Media Queries untuk Responsif (sesuaikan dengan desain baru) --- */
-@media (max-width: 768px) { /* Breakpoint untuk tablet */
-    .container {
-        margin: 30px auto;
-        padding: 25px;
-        max-width: 90%;
-    }
-    h1 {
-        font-size: 2em;
-    }
-    button {
-        padding: 14px 25px;
-        font-size: 1.1em;
-    }
-}
-
-@media (max-width: 500px) { /* Breakpoint untuk ponsel */
-    body {
-        padding: 10px;
-    }
-    .container {
-        padding: 20px;
-        margin: 15px auto;
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-        font-size: 1.8em;
-        margin-bottom: 25px;
-    }
-    form {
-        gap: 15px;
-        margin-bottom: 30px;
-    }
-    input[type="text"],
-    input[type="number"],
-    select {
-        padding: 12px 15px;
-        font-size: 1em;
-        border-radius: 8px;
-    }
-    button {
-        padding: 12px 20px;
-        font-size: 1.05em;
-        border-radius: 8px;
-    }
-    .list-item {
-        padding: 12px 0;
-        font-size: 0.95em;
-    }
-    .remove-item-btn {
-        padding: 6px 12px;
-        font-size: 0.85em;
-        border-radius: 5px;
-    }
-    .action-buttons {
-        margin-top: 30px;
-        gap: 12px;
-    }
-}
-
-
-/* --- Print Styles (khusus untuk cetak) --- */
+/* --- Print Styles (dengan penyesuaian) --- */
 @media print {
-    /* Atur gaya dasar body untuk cetak */
     body {
-        margin: 0 !important;
-        padding: 0 !important;
+        margin: 0 !important; /* Pastikan tidak ada margin ekstra di body */
+        padding: 0 !important; /* Pastikan tidak ada padding ekstra di body */
         background-color: white !important;
-        font-family: 'Lato', sans-serif !important; /* Font elegan untuk cetak */
-        font-size: 14px !important; /* Ukuran font dasar */
-        line-height: 1.1 !important; /* Jarak antar baris */
+        font-family: monospace !important; /* Font dasar untuk printer thermal */
+        font-size: 12px !important; /* UKURAN FONT BODY/LIST MENJADI 12PX */
+        color: black !important; /* Pastikan semua teks berwarna hitam */
+        line-height: 1.1 !important; /* Jarak antar baris diperkecil */
         font-weight: normal !important;
         overflow: hidden !important;
-        color: black !important; /* Pastikan semua teks berwarna hitam */
     }
 
-    /* Sembunyikan semua elemen di body yang BUKAN .container */
-    body > *:not(.container) {
-        display: none !important;
-    }
-
-    /* Atur .container sebagai satu-satunya area cetak */
     .container {
-        display: block !important;
-        visibility: visible !important;
-        position: static !important;
-        width: 58mm !important; /* Lebar kertas thermal */
-        max-width: 58mm !important;
-        margin: 0 auto !important; /* Pusatkan di halaman cetak */
-        padding: 4mm !important; /* Margin dari tepi kertas thermal */
         box-shadow: none !important;
-        background-color: white !important;
-        border-radius: 0 !important;
+        padding: 5mm !important;
+        max-width: 58mm !important;
+        width: auto !important;
+        margin: 0 auto !important;
     }
 
-    /* Sembunyikan elemen-elemen di dalam .container yang TIDAK ingin dicetak */
-    .container > form,
-    .container > h1, /* h1 utama di layar */
-    .container > .action-buttons,
-    .list-item .remove-item-btn /* Tombol X */
-    {
+    /* Sembunyikan elemen yang tidak perlu dicetak */
+    form,
+    h1,
+    .action-buttons,
+    .remove-item-btn {
         display: none !important;
     }
 
-    /* Pastikan elemen-elemen khusus cetak di dalam container terlihat */
+    /* Tampilkan elemen yang perlu dicetak */
     .print-header,
     #shopping-list,
     .print-footer {
         display: block !important;
-        visibility: visible !important;
-        width: 100% !important;
+        visibility: visible !important; /* Pastikan terlihat */
+        width: 100% !important; /* Pastikan mengisi lebar */
     }
 
-    /* Header cetak */
     .print-header {
         text-align: center;
-        margin-bottom: 3mm !important;
-        line-height: 1.1;
+        margin-bottom: 4mm !important; /* Jarak bawah header sedikit lebih rapat */
     }
     .print-header h2 {
-        display: block !important;
-        font-size: 1.4em !important;
+        font-size: 1.2em !important;
         margin: 0 !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.5px;
-        color: black !important;
+        font-weight: bold !important;
     }
     .print-header p {
-        font-size: 0.9em !important; /* Ukuran teks header normal */
+        font-size: 0.9em !important;
         margin: 0 !important;
-        padding: 0 !important;
-        font-weight: 700 !important;
-        color: black !important;
     }
 
-    /* Garis pemisah pertama */
     #shopping-list {
         border-top: 1px dashed black !important;
-        padding-top: 2mm !important;
-        margin-top: 2mm !important;
+        padding-top: 3mm !important; /* Padding atas daftar belanja lebih dekat */
+        margin-top: 3mm !important; /* Margin atas daftar belanja lebih dekat */
     }
 
     .list-item {
-        display: block !important;
-        padding: 0 !important;
-        border-bottom: none !important;
-        line-height: 1.1;
-        margin-bottom: 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        padding: 1.5mm 0 !important; /* Merapatkan jarak antar baris list */
+        border-bottom: 1px dashed #aaa !important;
+        font-size: 1em !important; /* Ini akan jadi 12px karena body font-size 12px */
+        font-weight: bold !important; /* Memastikan tebal */
     }
 
-    /* Styling utama untuk item dalam satu baris (Daftar Belanja) */
+    .list-item:last-child {
+        border-bottom: none !important;
+    }
+
+    /* Untuk kompatibilitas yang lebih luas, gunakan flexbox sederhana untuk item di cetak */
     .item-line-print {
-        font-size: 11px !important;
-        font-weight: 700 !important; /* Seluruh baris tetap tebal */
-        color: black !important;
         display: flex !important;
         justify-content: space-between !important;
         width: 100% !important;
-        padding: 0.2mm 0 !important;
-        border-bottom: 1px dashed black !important;
-        margin-bottom: 0.5mm !important;
     }
 
-    .item-line-print:last-of-type {
-        border-bottom: none !important;
-    }
-
-    /* Footer cetak */
     .print-footer {
-        display: block !important;
         text-align: center;
-        margin-top: 2mm !important; /* *** JARAK FOOTER DENGAN BODY LEBIH DEKAT (dari 4mm menjadi 2mm) *** */
+        margin-top: 2mm !important; /* JARAK FOOTER DENGAN BODY LEBIH DEKAT */
         border-top: 1px dashed black !important;
-        padding-top: 2mm !important; /* Padding atas footer juga dirapatkan */
-        font-size: 0.7em !important; /* *** UKURAN TEKS FOOTER LEBIH KECIL (dari 0.8em menjadi 0.7em) *** */
-        line-height: 1.2;
-        font-weight: 700 !important;
-        color: black !important;
+        padding-top: 2mm !important; /* Padding atas footer lebih kecil */
+        font-size: 0.7em !important; /* UKURAN TEKS FOOTER LEBIH KECIL */
     }
 }

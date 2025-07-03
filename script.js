@@ -21,9 +21,12 @@ function renderShoppingList() {
         const listItem = document.createElement('div');
         listItem.className = 'list-item';
         
+        // Menggunakan struktur yang sama dengan item-line-print untuk konsistensi
+        // Walaupun belum ada CSS print yang spesifik untuk .item-line-print di versi paling awal ini,
+        // struktur ini penting untuk pengembangan selanjutnya.
         listItem.innerHTML = `
             <div class="item-line-print">
-                <span>${item.name.toUpperCase()}</span> 
+                <span>${item.name}</span> 
                 <span>${item.quantity} ${item.unit}</span>
             </div>
             <button class="remove-item-btn" data-index="${index}">X</button>
@@ -61,6 +64,12 @@ shoppingForm.addEventListener('submit', (event) => {
     }
 });
 
+// Fungsi untuk menghapus item
+function removeItem(index) {
+    shoppingItems.splice(index, 1); // Hapus item dari array
+    renderShoppingList(); // Perbarui tampilan
+}
+
 // Fungsi untuk mencetak
 printButton.addEventListener('click', () => {
     if (shoppingItems.length === 0) {
@@ -84,57 +93,39 @@ whatsappButton.addEventListener('click', () => {
         return;
     }
 
-    // --- REKONSTRUKSI PESAN WHATSAPP AGAR MIRIP CETAKAN ---
     let message = "";
 
-    // 1. Header (mirip dengan print-header)
-    message += "*HARINFOOD*\n"; // Menggunakan Markdown untuk tebal
+    // 1. Header WhatsApp
+    message += "HARINFOOD\n"; 
     message += "Daftar Belanja\n";
     
-    // Ambil tanggal yang sama dengan cetakan
     const now = new Date();
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     const printDate = now.toLocaleDateString('id-ID', options);
     message += `Tanggal: ${printDate}\n`;
-    message += "-----------------------------------\n"; // Garis pemisah simulasi
+    message += "-----------------------------------\n";
 
-    // 2. List Belanjaan
+    // 2. List Belanjaan WhatsApp
     shoppingItems.forEach((item) => {
-        // Format mirip dengan item-line-print, menggunakan uppercase dan spasi
-        // Menggunakan '*' untuk membuat baris tebal di WhatsApp jika memungkinkan
-        message += `*${item.name.toUpperCase().padEnd(20)} ${item.quantity} ${item.unit}*\n`;
-        message += "-----------------------------------\n"; // Garis di bawah setiap item
+        message += `${item.name} - ${item.quantity} ${item.unit}\n`;
     });
-    // Hapus garis terakhir agar tidak ada garis ganda sebelum footer
-    if (shoppingItems.length > 0) {
-        message = message.substring(0, message.lastIndexOf("-----------------------------------\n"));
-    }
-
-
-    // 3. Footer
-    message += "-----------------------------------\n"; // Garis pemisah simulasi
+    
+    // 3. Footer WhatsApp
+    message += "-----------------------------------\n";
     message += "Terima Kasih!\n";
     message += "Dibuat oleh Aplikasi Harinfood\n";
-    // --- AKHIR REKONSTRUKSI ---
 
-    // --- PERUBAHAN DI SINI: NOMOR WHATSAPP LANGSUNG DIISI ---
     // Nomor WhatsApp tujuan yang sudah ditentukan
     const rawWhatsappNumber = "081235368643";
-    let targetWhatsappNumber = rawWhatsappNumber.replace(/\D/g, ''); // Hapus semua non-digit
+    let targetWhatsappNumber = rawWhatsappNumber.replace(/\D/g, ''); 
 
-    // Konversi ke format internasional jika belum
     if (targetWhatsappNumber.startsWith('0')) {
         targetWhatsappNumber = '62' + targetWhatsappNumber.substring(1);
-    } else if (!targetWhatsappNumber.startsWith('62')) {
-        // Asumsi jika tidak dimulai dengan 0 atau 62, tambahkan 62 jika panjangnya memungkinkan
-        if (targetWhatsappNumber.length > 5) { // Minimal 5 digit untuk asumsi nomor valid
-            targetWhatsappNumber = '62' + targetWhatsappNumber;
-        }
+    } else if (!targetWhatsappNumber.startsWith('62') && targetWhatsappNumber.length > 5) {
+        targetWhatsappNumber = '62' + targetWhatsappNumber;
     }
-    // --- AKHIR PERUBAHAN ---
-
-    // Validasi sederhana, meskipun nomor sudah hardcode, jaga-jaga jika ada kesalahan format
-    if (!targetWhatsappNumber || targetWhatsappNumber.length < 9) { // Nomor WhatsApp minimal sekitar 9 digit untuk Indonesia
+    
+    if (!targetWhatsappNumber || targetWhatsappNumber.length < 9) {
         alert("Nomor WhatsApp tidak valid. Pengiriman dibatalkan.");
         return;
     }
